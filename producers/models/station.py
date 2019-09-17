@@ -39,7 +39,7 @@ class Station(Producer):
         # replicas
         #
         #
-        topic_name = "stations" # TODO: Come up with a better topic name
+        topic_name = "org.chicago.cta.station.arrivals" # TODO: Come up with a better topic name
         super().__init__(
             topic_name,
             key_schema=Station.key_schema,
@@ -66,21 +66,20 @@ class Station(Producer):
         #
         # logger.info("arrival kafka integration incomplete - skipping")
         # requests.delete('http://localhost:8081/subjects/{}-key'.format(self.topic_name))
-        
-        # self.producer.produce(
-        #    topic=self.topic_name,
-        #    key={"timestamp": self.time_millis()},
-        #    value={
-        #        'station_id':  self.station_id,
-        #        'train_id':    train.train_id,
-        #        'direction': direction,
-        #        'line': self.color,
-        #        'train_status': train.status,
-        #        'prev_station_id': prev_station_id,
-        #        'prev_direction': prev_direction,
+        self.producer.produce(
+           topic=self.topic_name,
+           key={"timestamp": self.time_millis()},
+           value={
+               'station_id':  self.station_id,
+               'train_id':    train.train_id,
+               'direction': direction,
+               'line': self.color.name,
+               'train_status': train.status.name,
+               'prev_station_id': prev_station_id,
+               'prev_direction': prev_direction,
 
-        #    },
-        # )
+           },
+        )
 
     def __str__(self):
         return "Station | {:^5} | {:<30} | Direction A: | {:^5} | departing to {:<30} | Direction B: | {:^5} | departing to {:<30} | ".format(

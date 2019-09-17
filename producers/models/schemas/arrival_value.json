@@ -17,12 +17,12 @@
     },
     {
       "name": "line",
-      "type": ["null", "int"]
+      "type": ["null", "string"]
       
     },
     {
       "name": "train_status",
-      "type": ["null", "int"]
+      "type": ["null", "string"]
       
     },
     {

@@ -25,6 +25,9 @@ class Line:
 
     def _handle_station(self, value):
         """Adds the station to this Line's data model"""
+        line = value.get("line")
+        print(f"line: {line}")
+        print(f"color: {self.color}")
         if value["line"] != self.color:
             return
         self.stations[value["station_id"]] = Station.from_message(value)
@@ -32,10 +35,13 @@ class Line:
     def _handle_arrival(self, message):
         """Updates train locations"""
         value = message.value()
+        print(value)
         prev_station_id = value.get("prev_station_id")
         prev_dir = value.get("prev_direction")
         if prev_dir is not None and prev_station_id is not None:
             prev_station = self.stations.get(prev_station_id)
+            print(f"stations: {self.stations}")
+            print(f"prevStation: {prev_station}")
             if prev_station is not None:
                 prev_station.handle_departure(prev_dir)
             else:
@@ -47,6 +53,7 @@ class Line:
 
         station_id = value.get("station_id")
         station = self.stations.get(station_id)
+        print(f"end station: {station}")
         if station is None:
             logger.debug("unable to handle message due to missing station")
             return
@@ -56,16 +63,16 @@ class Line:
 
     def process_message(self, message):
         """Given a kafka message, extract data"""
-        # TODO: Based on the message topic, call the appropriate handler.
-        if True: # Set the conditional correctly to the stations Faust Table
+        if 'org.chicago.cta.stations.table' in message.topic(): # Set the conditional correctly to the stations Faust Table
             try:
                 value = json.loads(message.value())
                 self._handle_station(value)
             except Exception as e:
                 logger.fatal("bad station? %s, %s", value, e)
-        elif True: # Set the conditional to the arrival topic
+        elif 'org.chicago.cta.station.arrivals' in message.topic():
+            print('arrivals')
             self._handle_arrival(message)
-        elif True: # Set the conditional to the KSQL Turnstile Summary Topic
+        elif 'TURNSTILE_SUMMARY' in message.topic():
             json_data = json.loads(message.value())
             station_id = json_data.get("STATION_ID")
             station = self.stations.get(station_id)

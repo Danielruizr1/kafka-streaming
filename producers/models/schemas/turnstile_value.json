@@ -13,7 +13,7 @@
     },
     {
       "name": "line",
-      "type": ["null", "int"]
+      "type": ["null", "string"]
     },
     {
       "name": "num_entries",
