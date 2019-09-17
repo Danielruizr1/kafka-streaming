@@ -14,6 +14,8 @@ class Line:
     def __init__(self, color):
         """Creates a line"""
         self.color = color
+        self.stationsCount = 0
+        self.noStations = 0
         self.color_code = "0xFFFFFF"
         if self.color == "blue":
             self.color_code = "#1E90FF"
@@ -25,10 +27,12 @@ class Line:
 
     def _handle_station(self, value):
         """Adds the station to this Line's data model"""
-        line = value.get("line")
-        print(f"line: {line}")
-        print(f"color: {self.color}")
+        line = value.get("line")  
+        self.stationsCount += 1
+        print(f"STATIONS:{self.stationsCount}")
         if value["line"] != self.color:
+            self.noStations += 1
+            print(f"NO STATIONS:{self.noStations}")
             return
         self.stations[value["station_id"]] = Station.from_message(value)
 
@@ -40,8 +44,6 @@ class Line:
         prev_dir = value.get("prev_direction")
         if prev_dir is not None and prev_station_id is not None:
             prev_station = self.stations.get(prev_station_id)
-            print(f"stations: {self.stations}")
-            print(f"prevStation: {prev_station}")
             if prev_station is not None:
                 prev_station.handle_departure(prev_dir)
             else:
@@ -51,9 +53,10 @@ class Line:
                 "unable to handle previous station due to missing previous info"
             )
 
+        countStations = len(self.stations)
         station_id = value.get("station_id")
         station = self.stations.get(station_id)
-        print(f"end station: {station}")
+        print(f"all stations: {countStations}")
         if station is None:
             logger.debug("unable to handle message due to missing station")
             return
@@ -70,7 +73,6 @@ class Line:
             except Exception as e:
                 logger.fatal("bad station? %s, %s", value, e)
         elif 'org.chicago.cta.station.arrivals' in message.topic():
-            print('arrivals')
             self._handle_arrival(message)
         elif 'TURNSTILE_SUMMARY' in message.topic():
             json_data = json.loads(message.value())

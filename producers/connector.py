@@ -45,7 +45,7 @@ def configure_connector():
                "mode": "incrementing",
                "incrementing.column.name": "stop_id",
                "topic.prefix": "fromconnect.",
-               "poll.interval.ms": "3000",
+               "poll.interval.ms": "5000",
            }
        }),
     )

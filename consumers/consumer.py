@@ -30,6 +30,8 @@ class KafkaConsumer:
         self.consume_timeout = consume_timeout
         self.offset_earliest = offset_earliest
 
+        self.stationsCount = 0
+
         self.broker_properties = {
             'bootstrap.servers': 'PLAINTEXT://localhost:9092',
             'schema.registry.url': 'http://localhost:8081'
@@ -77,7 +79,7 @@ class KafkaConsumer:
 
     def _consume(self):
         """Polls for a message. Returns 1 if a message was received, 0 otherwise"""
-        print('before')
+        print(self.stationsCount)
         message = self.consumer.poll(1.0)
         if message is None:
             print("no message received by consumer")
@@ -86,6 +88,8 @@ class KafkaConsumer:
             print(f"error from consumer {message.error()}")
             return 1
         else:
+            if message.topic() == "org.chicago.cta.stations.table.v1":
+                self.stationsCount += 1
             self.message_handler(message);
             # print(f"consumed message {message.key()}: {message.value()}")
             return 1
